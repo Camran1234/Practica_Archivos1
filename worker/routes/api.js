@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser');
 const app = express();
 
+const port = process.env.PORT || 3002;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); 
 let respuesta="AGREGADO";
@@ -37,7 +38,7 @@ app.all('/', function (req, res) {
 });
 
 //levantamos el servidor
-var server = app.listen(3002, function(){
+var server = app.listen(port, function(){
   var host = server.address().address;
   var port = server.address().port;
 
