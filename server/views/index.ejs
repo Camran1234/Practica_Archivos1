@@ -6,11 +6,11 @@
         <title>Super Calculadora</title>
             <!-- Bootstrap CSS -->
           
-        <script src="/js/app.js"></script>
+        
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
         <link rel="stylesheet" type="text/css" href="css/design.css">
     </head>
-    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <body>
         <div> 
             <header id="mainDiv" class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom" style="width: 100vw;">
@@ -22,8 +22,10 @@
                 </a>
     
                 <ul class="nav nav-pills">
-                    <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Inicio</a></li>
-                    <li class="nav-item"><a href="/app" class="nav-link ">Acerca de</a></li>
+                    <li class="nav-item"><a href="/inicio" class="nav-link active" aria-current="page">Inicio</a></li>
+                    <li class="nav-item"><a href="/login" class="nav-link ">Login</a></li>
+                    <li class="nav-item"><a href="/register" class="nav-link ">Registrarse</a></li>
+                    <li class="nav-item"><a href="/about" class="nav-link ">Acerca de</a></li>
                 </ul>
             </header>
         </div>
@@ -43,10 +45,10 @@
                 <label for="answer" id="mainNum">Respuesta</label>
                 <textarea id="answer" name="answer" rows="1" cols="20" readonly></textarea>
             </div>
+            <button id="boton2" onclick="historial()" class ="btn btn-outline-danger"><h6 style="font-size: larger;" id="titulos">Historial</h6></button>
             <div id="main_re">
                 <h2 id="titulo">Historial</h2>
                 <textarea id="historial" name="texto" rows="6" cols="40" readonly></textarea>
-                
             </div>
             <div id="foot_re" >
                 <button id="boton" onclick="sumar()" class="btn btn-outline-success"><h6 id="botonText">+</h6></button>
@@ -58,6 +60,7 @@
         </div>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-W8fXfP3gkOKtndU4JGtKDvXbO53Wy8SZCQHczT5FMiiqmQfUpWbYdTil/SxwZgAN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js" integrity="sha384-skAcpIdS7UcVUC05LJ9Dxay8AXcDYfBJqt1CJ85S/CFujBsIzCIv+l9liuYLaMQ/" crossorigin="anonymous"></script>
+    <script src="/js/app.js"></script>
     <script src="../node_modules/axios/dist/axios.min.js"></script>
     </body>
 

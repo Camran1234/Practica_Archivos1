@@ -1,35 +1,104 @@
 const express = require('express')
 const bodyParser = require('body-parser');
 const app = express();
+const crypto = require('crypto');
 const axios = require('axios').default;
-
+const Redis = require('../models/Redis');
+const { nextTick } = require('process');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); 
 let respuesta="AGREGADO";
 
 function sendOperation(req){
-  axios.post('localhost:3002/', {
+  axios.post('localhost:5000/worker/', {
     numero1: req.body.numero1,
     numero2: req.body.numero2,
     operacion: req.body.operacion
   })
   .then((response) => {
     console.log(response);
+    response = JSON.parse(response);
+    return response;
   }, (error) => {
     console.log(error);
   });
 }
 
+function sendHistorial(req){
+  let historial = Redis.getOperation();
+  return historial;
+}
+
+
+
 app.all('/', function (req, res) {
     console.log('Peticion recibida: '+req.body.peticion);
+    let result = "";
     if(req.body.peticion == 'operacion'){
-        sendOperation(req);
+        result = sendOperation(req);
+        //Subimos el resultado
+        Redis.uploadOperation(result.resultado);
     }else if(req.body.peticion == 'historial'){
-        
+        result = sendHistorial(req);
+        //Devuelve un array
     }
-    res.send(respuesta);
+    respuesta = {
+      respuesta: result
+    }
+    res.send(JSON.stringify(respuesta));
     res.end();
   });
+
+app.all('/register', function (req, res) {
+  console.log("REGISTRADO");
+  let usuario = req.body.usuario;
+  let password = req.body.password;
+  let existe;
+  try{
+    existe = Redis.existsUser(usuario);
+  }catch(ex){
+    console.log("REDIS EXIST");
+    console.log(ex);
+    return res.status(503).json({ respuesta:false, resultado:"SI ENTRO", ex: ex });
+  }
+
+  if(existe !== 0){
+    return res.status(503).json({ respuesta:false });
+  }else{
+    crypto.randomBytes(16, (err, salt) => {
+      const newSalt = salt.toString('base64');
+      console.log("salt: "+newSalt);
+      crypto.pbkdf2(password, newSalt, 1000, 64, 'sha1', async (err, key) => {
+        const encrypetedPassword = key.toString('base64');
+        try {
+            await Redis.setUser(usuario, encrypetedPassword, newSalt);
+        } catch (error) {
+            return res.status(503).json({ respuesta: false });
+        }
+
+      });
+    });
+  }
+  
+  console.log("Registrado");
+  return res.status(500).json({ respuesta:true });  
+});
+
+app.all('/login', function (req, res) {
+  let usuario = req.body.usuario;
+  let password = req.body.password;
+  let existe;
+  try{
+    existe = Redis.exists(usuario, password);
+    if(existe){
+      Redis.setLogin(usuario);
+    }
+    return res.status(200).json({respuesta:existe});
+  }catch(err){
+    return res.status(503).json({respuesta:false});
+  }
+  
+});
 
 //levantamos el servidor
 var server = app.listen(3001, function(){

@@ -1,14 +1,13 @@
 const express = require('express')
 const bodyParser = require('body-parser');
 const app = express();
-
+const operador = require("./operador")
 const port = process.env.PORT || 3002;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); 
 let respuesta="AGREGADO";
 
 app.all('/', function (req, res) {
-    const operador = require("./operador")
     let simboloOperador = req.body.operacion;
     let num1 = req.body.numero1;
     let num2 = req.body.numero2;
@@ -33,7 +32,7 @@ app.all('/', function (req, res) {
             resultado: operador.pow(num1, num2)
         }
     }
-    res.send(respuesta);
+    res.send(JSON.stringify(respuesta));
     res.end();
 });
 
