@@ -8,15 +8,15 @@ const redisClient = redis.createClient({
     retry_strategy: () => 1000
 });
 
-module.exports.setLogin = (userEmail) =>{
+function setLogin (userEmail){
     emailLogged = userEmail;
 }
 
-module.exports.existsUser = (userEmail) => {
+function existsUser(userEmail) {
     return new Promise((resolve, reject) => {
         redisClient.exists(userEmail, function (error, exist) {
             if (error) {
-                reject(0);
+                reject(error);
             }
             else {
                 resolve(exist);
@@ -27,7 +27,7 @@ module.exports.existsUser = (userEmail) => {
     });
 };
 
-module.exports.exists = (userEmail, password) => {
+function exists (userEmail, password) {
     return new Promise((resolve, reject) => {
         
         redisClient.exists(userEmail, function (error, exist) {
@@ -49,7 +49,7 @@ module.exports.exists = (userEmail, password) => {
     });
 };
 
-module.exports.setUser = (userEmail, password, salt) => {
+function setUser (userEmail, password, salt) {
     return new Promise((resolve, reject) => {
         resolve(redisClient.hset(userEmail, 'password', password, 'salt', salt));
     });
@@ -67,7 +67,7 @@ function getOperation() {
     });
 }
 
-module.exports.uploadOperation = (operation) => {
+function uploadOperation (operation) {
     return new Promise ((resolve, reject) => {
         let array;
         redisClient.hget(emailLogged, function(error, exist) {
@@ -85,7 +85,7 @@ module.exports.uploadOperation = (operation) => {
     })
 }
 
-module.exports.getUser = (userEmail) => {
+function getUser (userEmail) {
     return new Promise((resolve, reject) => {
         redisClient.hgetall(userEmail, function (error, exist) {
             if (error) {
@@ -99,5 +99,11 @@ module.exports.getUser = (userEmail) => {
 };
 
 module.exports = {
-    getOperation
+    getOperation,
+    getUser, 
+    setLogin, 
+    existsUser,
+    exists,
+    setUser,
+    uploadOperation
 }

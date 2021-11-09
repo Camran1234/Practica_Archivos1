@@ -54,7 +54,10 @@ function collectRequestData(request, callback){
 
 function sentRegister(usuario, password){
     return new Promise((resolve, reject) => {
-        axios.post('localhost:5000/api/register', {
+        //localhost:5000/api/register
+        //localhost:3001/register
+        console.log("Sending post axios")
+        axios.get('localhost:5000/api/register', {
             usuario: usuario,
             password: password
         }).then((response) => {
@@ -67,22 +70,44 @@ function sentRegister(usuario, password){
     })
 }
 
-app.post('/register_confirmation', (req, res) => {
+function requestParameters(req){
+    return new Promise((resolve, reject) => {
+        collectRequestData(req, result => {
+            let usuario = result.usuario.toString();
+            let password = result.password.toString();
+            let password_confirm = result.password_confirm.toString();
+            
+            let jsonAnswer = {
+                usuario: usuario,
+                password: password,
+                password_confirm: password_confirm
+            };
+            resolve(jsonAnswer);
+        });
+    });
+}
+
+app.post('/register_confirmation', async (req, res) => {
     let flag = false;
     let usuario;
     let password;
     let password_confirm;
-    collectRequestData(req, result => {
-        usuario = result.usuario;
-        password = result.password;
-        password_confirm = result.password_confirm;
+    await requestParameters(req)
+    .then((data) => {
+        usuario = data.usuario;
+        password = data.password;
+        password_confirm = data.password_confirm
+        console.log(usuario);
+        console.log(password);
+        console.log(password_confirm);
     });
-    console.log(usuario);
-    console.log(password);
-    console.log(password_confirm);
+    console.log("Executing)")
+    
+
+    
     if (password == password_confirm){
         console.log("Checking")
-        sentRegister(usuario, password)
+        await sentRegister(usuario, password)
         .then((data) => {
             console.log("THEN DATA");
             console.log(data);

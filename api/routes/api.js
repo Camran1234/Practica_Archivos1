@@ -49,13 +49,22 @@ app.all('/', function (req, res) {
     res.end();
   });
 
-app.all('/register', function (req, res) {
+app.get('/register',  function (req, res) {
   console.log("REGISTRADO");
   let usuario = req.body.usuario;
   let password = req.body.password;
+  console.log("PARAMETERS /register");
+  console.log(usuario);
+  console.log(password);
   let existe;
   try{
-    existe = Redis.existsUser(usuario);
+     Redis.existsUser(usuario)
+    .then((data) => {
+      existe = data;
+    })
+    .catch((error) =>{
+      return res.status(503).json({respuesta:false, ocasion: "Error en promesa: "+error});      
+    });
   }catch(ex){
     console.log("REDIS EXIST");
     console.log(ex);
@@ -63,7 +72,7 @@ app.all('/register', function (req, res) {
   }
 
   if(existe !== 0){
-    return res.status(503).json({ respuesta:false });
+    return res.status(503).json({ respuesta:false, ocasion: "Error en existe: "+existe });
   }else{
     crypto.randomBytes(16, (err, salt) => {
       const newSalt = salt.toString('base64');
@@ -71,9 +80,15 @@ app.all('/register', function (req, res) {
       crypto.pbkdf2(password, newSalt, 1000, 64, 'sha1', async (err, key) => {
         const encrypetedPassword = key.toString('base64');
         try {
-            await Redis.setUser(usuario, encrypetedPassword, newSalt);
+            await Redis.setUser(usuario, encrypetedPassword, newSalt)
+            .then((data) => {
+              //empty because success
+            })
+            .catch((error) => {
+              return res.status(503).json({respuesta:false, ocasion: "error ingresando usuario"});
+            });
         } catch (error) {
-            return res.status(503).json({ respuesta: false });
+            return res.status(503).json({ respuesta: false, ocasion: "En try: "+error });
         }
 
       });
